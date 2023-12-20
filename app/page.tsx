@@ -91,7 +91,7 @@ export default function Home() {
         </div>
       </div>
       {contest && (
-        <div className="rounded bg-yellow-600 p-2 m-2 text-xs">{`ID: ${contest.id}`}</div>
+        <div className="rounded bg-yellow-600 p-2 m-2 text-xs">{`${contest.name}`}</div>
       )}
 
       {!player && (
