@@ -11,6 +11,9 @@ import { useCallback, useEffect, useState } from "react";
 export default function Home() {
   const router = useRouter();
 
+  const {
+    actions: { loadPlayer },
+  } = useProfileStore((store) => store);
   const [contest, setContest] = useState<Contest>();
   const {
     state: { player },
@@ -19,8 +22,13 @@ export default function Home() {
   const [players, setPlayers] = useState<Player[]>([]);
 
   const fetchData = useCallback(async () => {
-    if (!player) router.replace("auth");
-    else {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      loadPlayer(user.id);
+
       const { data: contest } = await supabase
         .from("contests")
         .select("*")
@@ -35,8 +43,11 @@ export default function Home() {
 
         setPlayers(scoreboard);
       }
+    } else {
+      console.log("no user");
+      router.replace("/auth");
     }
-  }, [player, router]);
+  }, []);
 
   const getMedal = (position: number) => {
     switch (position) {

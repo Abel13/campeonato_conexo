@@ -11,7 +11,7 @@ export default function Register() {
   const [token, setToken] = useState("");
   const [email, setEmail] = useState("default");
   const {
-    actions: { setPlayer },
+    actions: { loadPlayer },
   } = useProfileStore((store) => store);
 
   const handleLogin = async () => {
@@ -25,13 +25,7 @@ export default function Register() {
 
     if (error) alert(error.message);
     else if (user) {
-      const { data: player, error } = await supabase
-        .from("players")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      setPlayer(player);
+      loadPlayer(user.id);
       router.replace("/");
     }
   };
@@ -43,14 +37,8 @@ export default function Register() {
   const fetchData = async () => {
     const { data, error } = await supabase.auth.getUser();
 
-    if (data) {
-      const { data: player, error } = await supabase
-        .from("players")
-        .select("*")
-        .eq("id", data.user?.id)
-        .single();
-
-      setPlayer(player);
+    if (data.user) {
+      loadPlayer(data.user?.id);
       router.replace("/");
     }
   };
