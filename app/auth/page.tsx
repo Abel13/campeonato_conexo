@@ -1,18 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TextField from "@/components/Fields";
 import { supabase } from "@/config/supabase";
 import { useRouter } from "next/navigation";
 import { useProfileStore } from "@/hooks/profile";
 
 export default function Register() {
+  const router = useRouter();
+
   const [token, setToken] = useState("");
   const [email, setEmail] = useState("default");
   const {
     actions: { setPlayer },
   } = useProfileStore((store) => store);
-
-  const router = useRouter();
 
   const handleLogin = async () => {
     const {
@@ -39,6 +39,25 @@ export default function Register() {
   const register = () => {
     router.replace("/register");
   };
+
+  const fetchData = async () => {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (data) {
+      const { data: player, error } = await supabase
+        .from("players")
+        .select("*")
+        .eq("id", data.user?.id)
+        .single();
+
+      setPlayer(player);
+      router.replace("/");
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div className="flex w-full pt-5 flex-col items-center">

@@ -6,25 +6,40 @@ import { supabase } from "@/config/supabase";
 import { useRouter } from "next/navigation";
 import { useProfileStore } from "@/hooks/profile";
 import { Daily } from "@/types/daily";
+import { Player } from "@/types/player";
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
   const router = useRouter();
-  const {
-    state: { player },
-  } = useProfileStore((store) => store);
 
   const [answer, setAnswer] = useState("");
   const [success, setSuccess] = useState(false);
   const [history, setHistory] = useState<Daily[]>([]);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player>();
+  const [allowSendResult, setAllowSendResult] = useState(false);
+  const {
+    state: { player },
+  } = useProfileStore((store) => store);
 
   const fetchData = useCallback(async () => {
-    const { data: history, error } = await supabase
-      .from("daily")
+    const { data: selectedPlayer } = await supabase
+      .from("players")
       .select("*")
-      .eq("player_id", id);
+      .eq("id", id)
+      .single();
 
-    setHistory(history);
-  }, [id]);
+    if (selectedPlayer) {
+      setSelectedPlayer(selectedPlayer);
+      if (player?.id === selectedPlayer.id) setAllowSendResult(true);
+
+      const { data: history, error } = await supabase
+        .from("daily")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .eq("player_id", id);
+
+      setHistory(history);
+    }
+  }, [id, player?.id]);
 
   useEffect(() => {
     fetchData();
@@ -111,7 +126,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
     }
   }, [answer, id]);
 
-  if (!player)
+  if (!selectedPlayer)
     return (
       <div className="flex min-h-screen items-center justify-center">
         Carregando...
@@ -125,32 +140,37 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
       </div>
       <Image
         className={`rounded-full border-2`}
-        src={`https://api.dicebear.com/7.x/fun-emoji/png?seed=${player.name}`}
+        src={`https://api.dicebear.com/7.x/fun-emoji/png?seed=${selectedPlayer.name}`}
         alt="Icon"
         width={80}
         height={80}
       />
+      <span className="text-2xl mt-2">{selectedPlayer.name}</span>
 
-      <div className="flex flex-col p-2 w-full mt-5">
-        <span className="text-sm mb-1 text-gray-400 mt-4">
-          Informe seu resultado de hoje:
-        </span>
-        <TextField
-          id="token"
-          className="flex-1"
-          placeholder="Joguei conexo.ws dd/mm/yyyy e consegui em 6 tentativas..."
-          type="text"
-          onChange={(e) => {
-            setAnswer(e.target.value ? e.target.value : "");
-          }}
-        />
-      </div>
-      <button
-        className="w-fit p-2 bg-blue-600 rounded px-4 text-white font-semibold mt-6"
-        onClick={handleSend}
-      >
-        Enviar resultado
-      </button>
+      {allowSendResult && (
+        <>
+          <div className="flex flex-col p-2 w-full mt-5">
+            <span className="text-sm mb-1 text-gray-400 mt-4">
+              Informe seu resultado de hoje:
+            </span>
+            <TextField
+              id="token"
+              className="flex-1"
+              placeholder="Joguei conexo.ws dd/mm/yyyy e consegui em 6 tentativas..."
+              type="text"
+              onChange={(e) => {
+                setAnswer(e.target.value ? e.target.value : "");
+              }}
+            />
+          </div>
+          <button
+            className="w-fit p-2 bg-blue-600 rounded px-4 text-white font-semibold mt-6"
+            onClick={handleSend}
+          >
+            Enviar resultado
+          </button>
+        </>
+      )}
 
       {success && (
         <div className="flex flex-col items-center mt-6">

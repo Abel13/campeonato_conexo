@@ -94,6 +94,7 @@ export default function Home() {
           <div
             key={player.id}
             className="flex items-center justify-between w-full max-w-5xl p-4 my-2 bg-white rounded-xl shadow-md dark:bg-zinc-800"
+            onClick={() => router.push(`profile/${player.id}`)}
           >
             <div className="flex items-center">
               {getMedal(index)}
