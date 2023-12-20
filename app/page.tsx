@@ -1,7 +1,6 @@
 "use client";
 import NavLink from "@/components/NavLink";
 import { supabase } from "@/config/supabase";
-import { User } from "@supabase/supabase-js";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -52,12 +51,11 @@ export default function Home() {
 
       if (contest) {
         setContest(contest);
-        // const { data: players, error } = await supabase
-        //   .from("players")
-        //   .select("*")
-        //   .order("score", { ascending: false })
-        //   .limit(10);
-        // setPlayers(players);
+        const { data: scoreboard, error } = await supabase.rpc("scoreboard", {
+          _contest: contest.id,
+        });
+
+        setPlayers(scoreboard);
       }
     }
   }, [router]);
@@ -85,7 +83,7 @@ export default function Home() {
         <p className="flex flex-1" />
         <p className="flex w-fit">🏆 CLASSIFICAÇÃO 🏆</p>
         <div className="flex flex-1 justify-end">
-          <NavLink href="profile">
+          <NavLink href={`profile/${player.id}`}>
             <Image
               className={`rounded-full border-2`}
               src={`https://api.dicebear.com/7.x/adventurer-neutral/png?seed=${player.name}`}
