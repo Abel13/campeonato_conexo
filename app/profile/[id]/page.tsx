@@ -37,7 +37,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         .order("created_at", { ascending: false })
         .eq("player_id", id);
 
-      setHistory(history);
+      if (history) setHistory(history);
     }
   }, [id, player?.id]);
 
