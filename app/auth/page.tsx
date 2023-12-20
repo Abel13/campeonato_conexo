@@ -3,21 +3,37 @@ import { useState } from "react";
 import TextField from "@/components/Fields";
 import { supabase } from "@/config/supabase";
 import { useRouter } from "next/navigation";
+import { useProfileStore } from "@/hooks/profile";
 
 export default function Register() {
   const [token, setToken] = useState("");
   const [email, setEmail] = useState("default");
+  const {
+    actions: { setPlayer },
+  } = useProfileStore((store) => store);
 
   const router = useRouter();
 
   const handleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.signInWithPassword({
       email,
       password: token,
     });
 
     if (error) alert(error.message);
-    else router.replace("/");
+    else if (user) {
+      const { data: player, error } = await supabase
+        .from("players")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      setPlayer(player);
+      router.replace("/");
+    }
   };
 
   const register = () => {

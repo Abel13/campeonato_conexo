@@ -4,33 +4,26 @@ import TextField from "@/components/Fields";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/config/supabase";
 import { useRouter } from "next/navigation";
+import { useProfileStore } from "@/hooks/profile";
+import { Daily } from "@/types/daily";
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
   const router = useRouter();
+  const {
+    state: { player },
+  } = useProfileStore((store) => store);
 
-  const [player, setPlayer] = useState<{
-    id: string;
-    name: string;
-    score: number;
-  }>({
-    ...({} as any),
-    name: "default",
-  });
   const [answer, setAnswer] = useState("");
   const [success, setSuccess] = useState(false);
+  const [history, setHistory] = useState<Daily[]>([]);
 
   const fetchData = useCallback(async () => {
-    const { data: player, error } = await supabase
-      .from("players")
+    const { data: history, error } = await supabase
+      .from("daily")
       .select("*")
-      .eq("id", id)
-      .single();
+      .eq("player_id", id);
 
-    if (error) {
-      alert(error.message);
-    } else {
-      setPlayer(player);
-    }
+    setHistory(history);
   }, [id]);
 
   useEffect(() => {
@@ -118,6 +111,13 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
     }
   }, [answer, id]);
 
+  if (!player)
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Carregando...
+      </div>
+    );
+
   return (
     <div className="flex w-full pt-5 flex-col items-center">
       <div className="flex w-full px-2 text-blue-500" onClick={router.back}>
@@ -160,6 +160,48 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
           </span>
         </div>
       )}
+
+      <div className="flex flex-col gap-1 w-full mt-4 p-2">
+        {history.length > 0 &&
+          history.map((daily) => (
+            <div
+              className="flex items-center justify-between w-full max-w-5xl p-4 bg-white rounded-xl shadow-md dark:bg-zinc-800"
+              key={daily.created_at.toString()}
+            >
+              <div>
+                <span className="flex flex-1 text-xs mr-2 text-gray-500">
+                  {`${new Date(daily.created_at).getUTCDate()}-${new Date(
+                    daily.created_at
+                  ).toLocaleString("pt-BR", { month: "short" })}`}
+                </span>
+                <span className="text-xl mr-2 text-white items-center">
+                  {`${daily.score} `}
+                  <span className="text-xs">tentativas</span>
+                </span>
+              </div>
+              <div className="flex h-full">
+                <div className="grid grid-cols-10 gap-1 text-sm">
+                  {daily.answers.map((answer) => {
+                    switch (answer) {
+                      case "error":
+                        return <span className="text-red-500">❌</span>;
+                      case "green":
+                        return <span className="text-green-500">🟩</span>;
+                      case "orange":
+                        return <span className="text-yellow-500">🟧</span>;
+                      case "purple":
+                        return <span className="text-purple-500">🟪</span>;
+                      case "blue":
+                        return <span className="text-blue-500">🟦</span>;
+                      default:
+                        return <span className="text-gray-500">❔</span>;
+                    }
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
+      </div>
     </div>
   );
 }

@@ -1,48 +1,26 @@
 "use client";
 import NavLink from "@/components/NavLink";
 import { supabase } from "@/config/supabase";
+import { useProfileStore } from "@/hooks/profile";
+import { Contest } from "@/types/contest";
+import { Player } from "@/types/player";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-type Player = {
-  id: string;
-  name: string;
-  score: number;
-};
-
-type Contest = {
-  id: string;
-  start_date: Date;
-  end_date: Date;
-  open: boolean;
-};
-
 export default function Home() {
   const router = useRouter();
-  const [player, setPlayer] = useState<Player>({
-    ...({} as Player),
-    name: "default",
-  });
+
   const [contest, setContest] = useState<Contest>();
+  const {
+    state: { player },
+  } = useProfileStore((store) => store);
 
   const [players, setPlayers] = useState<Player[]>([]);
 
   const fetchData = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) router.replace("auth");
+    if (!player) router.replace("auth");
     else {
-      const { data: player, error } = await supabase
-        .from("players")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      setPlayer(player);
-
       const { data: contest } = await supabase
         .from("contests")
         .select("*")
@@ -58,7 +36,7 @@ export default function Home() {
         setPlayers(scoreboard);
       }
     }
-  }, [router]);
+  }, [player, router]);
 
   const getMedal = (position: number) => {
     switch (position) {
@@ -76,6 +54,13 @@ export default function Home() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  if (!player)
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Carregando...
+      </div>
+    );
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
