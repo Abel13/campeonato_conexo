@@ -111,11 +111,17 @@ export default function Home() {
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {player.name}
                 </p>
+                <div className="flex space-x-1 text-sm text-gray-600">
+                  <p>{player.trophies > 0 && `${player.trophies} 🏆`}</p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center flex-col">
               <p className="text-sm font-medium text-gray-900 dark:text-white">
                 {player.score}
+              </p>
+              <p className="text-xs font-medium text-gray-600">
+                {`em ${player.dailies} dias`}
               </p>
             </div>
           </div>

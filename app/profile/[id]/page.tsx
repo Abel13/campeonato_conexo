@@ -201,18 +201,38 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
               </div>
               <div className="flex h-full">
                 <div className="grid grid-cols-10 gap-1 text-sm">
-                  {daily.answers.map((answer) => {
+                  {daily.answers.map((answer, index) => {
                     switch (answer) {
                       case "error":
-                        return <span className="text-red-500">❌</span>;
+                        return (
+                          <span key={index} className="text-red-500">
+                            ❌
+                          </span>
+                        );
                       case "green":
-                        return <span className="text-green-500">🟩</span>;
+                        return (
+                          <span key={index} className="text-green-500">
+                            🟩
+                          </span>
+                        );
                       case "orange":
-                        return <span className="text-yellow-500">🟧</span>;
+                        return (
+                          <span key={index} className="text-yellow-500">
+                            🟧
+                          </span>
+                        );
                       case "purple":
-                        return <span className="text-purple-500">🟪</span>;
+                        return (
+                          <span key={index} className="text-purple-500">
+                            🟪
+                          </span>
+                        );
                       case "blue":
-                        return <span className="text-blue-500">🟦</span>;
+                        return (
+                          <span key={index} className="text-blue-500">
+                            🟦
+                          </span>
+                        );
                       default:
                         return <span className="text-gray-500">❔</span>;
                     }
