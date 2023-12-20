@@ -125,7 +125,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
       </div>
       <Image
         className={`rounded-full border-2`}
-        src={`https://api.dicebear.com/7.x/adventurer-neutral/png?seed=${player.name}`}
+        src={`https://api.dicebear.com/7.x/fun-emoji/png?seed=${player.name}`}
         alt="Icon"
         width={80}
         height={80}

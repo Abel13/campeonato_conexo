@@ -86,7 +86,7 @@ export default function Home() {
           <NavLink href={`profile/${player.id}`}>
             <Image
               className={`rounded-full border-2`}
-              src={`https://api.dicebear.com/7.x/adventurer-neutral/png?seed=${player.name}`}
+              src={`https://api.dicebear.com/7.x/fun-emoji/png?seed=${player.name}`}
               alt="Icon"
               width={50}
               height={50}
@@ -115,7 +115,7 @@ export default function Home() {
               <div className="flex-shrink-0">
                 <Image
                   className="rounded-full"
-                  src={`https://api.dicebear.com/7.x/adventurer-neutral/png?seed=${player.name}`}
+                  src={`https://api.dicebear.com/7.x/fun-emoji/png?seed=${player.name}`}
                   alt="Icon"
                   width={50}
                   height={50}

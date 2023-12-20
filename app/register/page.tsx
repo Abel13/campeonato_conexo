@@ -43,7 +43,7 @@ export default function Register() {
       </div>
       <Image
         className={`rounded-full border-2`}
-        src={`https://api.dicebear.com/7.x/adventurer-neutral/png?seed=${nick}`}
+        src={`https://api.dicebear.com/7.x/fun-emoji/png?seed=${nick}`}
         alt="Icon"
         width={80}
         height={80}

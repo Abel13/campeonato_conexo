@@ -6,7 +6,7 @@ const nextConfig = {
         protocol: "https",
         hostname: "api.dicebear.com",
         port: "",
-        pathname: "/7.x/adventurer-neutral/png",
+        pathname: "/7.x/fun-emoji/png",
       },
     ],
   },
