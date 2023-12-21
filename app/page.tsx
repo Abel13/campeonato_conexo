@@ -14,7 +14,10 @@ export default function Home() {
   const {
     actions: { loadPlayer },
   } = useProfileStore((store) => store);
+
   const [contest, setContest] = useState<Contest>();
+  const [contests, setContests] = useState<Contest[]>();
+
   const {
     state: { player },
   } = useProfileStore((store) => store);
@@ -45,7 +48,8 @@ export default function Home() {
         if (contest) {
           setContest(contest);
           const { data: scoreboard } = await supabase.rpc("scoreboard", {
-            _contest: contest.id,
+            _start_date: contest.start_date,
+            _end_date: contest.end_date,
           });
 
           setPlayers(scoreboard);
@@ -103,8 +107,11 @@ export default function Home() {
       {contest ? (
         <div
           className="rounded bg-yellow-600 p-2 m-2 text-xs"
-          onClick={() => router.push("contests")}
-        >{`${contest.name}`}</div>
+          // onClick={() => router.push("contests")}
+        >
+          {`${contest.name}`}
+          {<div></div>}
+        </div>
       ) : (
         <div className="rounded bg-yellow-600 p-2 m-2 text-xs">
           Carregando...
