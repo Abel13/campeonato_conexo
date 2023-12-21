@@ -34,3 +34,37 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Cíclo de vida
+
+### Cadastro
+
+- Usuário entra no site e cai no login
+- Clica em cadastrar e na tela de cadastro informa nome, e-mail e senha
+- Recebe um e-mail de confirmação
+- Ativa a conta
+
+### Login
+
+- Ao ir para a home se não tiver autenticado é redirecionado para o login
+- Ao fazer login é redirecionado para a home
+
+### Criar partida
+
+- Ao entrar na home se não tiver participando de nenhum campeonato é redirecionado para a lista de campeonatos abertos
+- Clique em Criar campeonato
+
+### Entrar em um campeonato
+
+- Ao entrar na home se não tiver participando de nenhum campeonato é redirecionado para a lista de campeonatos abertos
+- Selecione um campeonato e clique em participar
+- Isso irá vincular o jogador ao campeonato, permitindo que ele liste todos os participantes na home
+- Caso a data de inscrição já tenha passado, não será mais possível entrar
+
+### Campeonatos encerrados
+
+- Um campeonato encerrado não será mais carregado na home
+
+### Data final
+
+- A data final de um campeonato define o ultimo dia que será possível enviar dados para aquele campeonato

@@ -4,4 +4,5 @@ export type Contest = {
   end_date: Date;
   open: boolean;
   name: string;
+  allow_subscription: Date;
 };

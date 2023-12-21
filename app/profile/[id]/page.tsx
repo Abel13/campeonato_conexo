@@ -7,6 +7,15 @@ import { useRouter } from "next/navigation";
 import { useProfileStore } from "@/hooks/profile";
 import { Daily } from "@/types/daily";
 import { Player } from "@/types/player";
+import {
+  compareDesc,
+  endOfDay,
+  format,
+  formatISO,
+  parse,
+  parseISO,
+  toDate,
+} from "date-fns";
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
   const router = useRouter();
@@ -46,7 +55,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
   }, [fetchData]);
 
   function extractData(str: string): {
-    date: string;
+    date: Date;
     matrix: string[];
     attempts: number;
   } {
@@ -63,7 +72,9 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         throw new Error("Formato inválido");
       }
 
-      const date = matchDate[0]; // Extrai a data encontrada na string
+      const date = endOfDay(
+        parse(matchDate[0], "dd/MM/yyyy", new Date().toISOString())
+      );
       const attempts = parseInt(matchAttempts[1], 10);
       const matrix = str
         .substring(str.indexOf("  "))
@@ -82,11 +93,15 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
   }
 
   const handleSend = useCallback(async () => {
+    // Mudar para buscar o contest no useContestStore, pois já temos ele lá
     const { data: contest } = await supabase
       .from("contests")
       .select("*")
       .eq("open", true)
       .single();
+
+    if (compareDesc(format(new Date(), "yyyy-MM-dd"), contest.end_date) === -1)
+      return alert("Não é possível enviar mais resultados!");
 
     try {
       const {
@@ -94,7 +109,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         matrix,
         attempts,
       }: {
-        date: string;
+        date: Date;
         matrix: string[];
         attempts: number;
       } = extractData(answer);
@@ -103,12 +118,28 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         throw new Error("Formato inválido");
       }
 
+      console.log(formatISO(date), formatISO(new Date()));
+      if (
+        compareDesc(
+          format(date, "yyyy-MM-dd"),
+          format(new Date(), "yyyy-MM-dd")
+        ) === 1
+      )
+        return alert("Não é possível enviar resultados passados!");
+
+      if (
+        compareDesc(
+          format(date, "yyyy-MM-dd"),
+          format(new Date(), "yyyy-MM-dd")
+        ) === -1
+      )
+        return alert("Não é possível enviar resultados futuros!");
+
       const { data, error } = await supabase.from("daily").insert([
         {
           player_id: id,
           contest_id: contest.id,
-          created_at:
-            date.substring(6, 10) + date.substring(3, 5) + date.substring(0, 2),
+          created_at: format(date, "yyyy-MM-dd"),
           score: attempts,
           answers: matrix,
         },
@@ -116,7 +147,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
 
       if (error) {
         if (error.code === "23505")
-          alert(`Você já enviou o resultado de ${date}`);
+          alert(`Você já enviou o resultado de ${format(date, "dd/MM/yyyy")}`);
         else alert(error.message);
       } else {
         setSuccess(true);

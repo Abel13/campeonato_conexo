@@ -29,25 +29,35 @@ export default function Home() {
     if (user) {
       loadPlayer(user.id);
 
-      const { data: contest } = await supabase
-        .from("contests")
+      const { data: subscriptions } = await supabase
+        .from("subscriptions")
         .select("*")
-        .eq("open", true)
-        .single();
+        .eq("player_id", user.id);
 
-      if (contest) {
-        setContest(contest);
-        const { data: scoreboard, error } = await supabase.rpc("scoreboard", {
-          _contest: contest.id,
-        });
+      if (subscriptions && subscriptions?.length > 0) {
+        const { data: contest } = await supabase
+          .from("contests")
+          .select("*")
+          .eq("id", subscriptions[0].contest_id)
+          .eq("open", true)
+          .single();
 
-        setPlayers(scoreboard);
+        if (contest) {
+          setContest(contest);
+          const { data: scoreboard, error } = await supabase.rpc("scoreboard", {
+            _contest: contest.id,
+          });
+
+          setPlayers(scoreboard);
+          return;
+        }
       }
+
+      router.replace("/contests");
     } else {
-      console.log("no user");
       router.replace("/auth");
     }
-  }, []);
+  }, [loadPlayer, router]);
 
   const getMedal = (position: number) => {
     switch (position) {
@@ -90,8 +100,15 @@ export default function Home() {
           </NavLink>
         </div>
       </div>
-      {contest && (
-        <div className="rounded bg-yellow-600 p-2 m-2 text-xs">{`${contest.name}`}</div>
+      {contest ? (
+        <div
+          className="rounded bg-yellow-600 p-2 m-2 text-xs"
+          onClick={() => router.push("contests")}
+        >{`${contest.name}`}</div>
+      ) : (
+        <div className="rounded bg-yellow-600 p-2 m-2 text-xs">
+          Carregando...
+        </div>
       )}
 
       {!player && (
