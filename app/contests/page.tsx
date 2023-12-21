@@ -5,10 +5,12 @@ import { useCallback, useEffect, useState } from "react";
 import { compareDesc, format } from "date-fns";
 import { useProfileStore } from "@/hooks/profile";
 import { useRouter } from "next/navigation";
+import TextField from "@/components/Fields";
 
 export default function Contests() {
   const [openContests, setOpenContests] = useState<Contest[]>([]);
   const [closedContests, setClosedContests] = useState<Contest[]>([]);
+  const [secureContest, setSecureContest] = useState<Contest>();
 
   const router = useRouter();
 
@@ -17,10 +19,10 @@ export default function Contests() {
   } = useProfileStore((store) => store);
 
   const handleParticipate = useCallback(
-    async (contest_id: string) => {
+    async (contest: Contest) => {
       const { error } = await supabase.from("subscriptions").insert({
         player_id: player?.id,
-        contest_id,
+        contest_id: contest.id,
       });
 
       if (error) {
@@ -38,7 +40,9 @@ export default function Contests() {
   const fetchData = useCallback(async () => {
     const { data: contests, error } = await supabase
       .from("contests")
-      .select("*")
+      .select(
+        "id, name, ask_password, allow_subscription, open, created_at, start_date, end_date, allow_subscription"
+      )
       .order("created_at", { ascending: false });
 
     if (contests) {
@@ -71,6 +75,24 @@ export default function Contests() {
       <div className="flex w-full flex-col">
         <p className="text-sm bg-slate-900 p-1 pl-2 text-slate-300">Abertos</p>
         <div className="flex flex-col w-full gap-1">
+          {secureContest && (
+            <div className="absolute h-fit w-full">
+              <div className="py-4 px-2 rounded bg-slate-800 m-2 flex flex-col items-end">
+                <TextField
+                  id="password"
+                  placeholder="Senha"
+                  type="password"
+                  className="w-full"
+                />
+                <button
+                  className="w-fit p-2 mt-2 bg-blue-600 rounded px-4 text-white font-semibold text-xs disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  onClick={() => handleParticipate(secureContest)}
+                >
+                  Entrar
+                </button>
+              </div>
+            </div>
+          )}
           {openContests &&
             openContests.map((contest) => {
               return (
@@ -87,7 +109,13 @@ export default function Contests() {
                       ) === -1
                     }
                     className="w-fit p-2 bg-blue-600 rounded px-4 text-white font-semibold text-xs disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    onClick={() => handleParticipate(contest.id)}
+                    onClick={() => {
+                      if (contest.ask_password) {
+                        setSecureContest(contest);
+                        return;
+                      }
+                      handleParticipate(contest);
+                    }}
                   >
                     Participar
                   </button>
