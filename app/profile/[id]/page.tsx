@@ -118,14 +118,13 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         throw new Error("Formato inválido");
       }
 
-      console.log(formatISO(date), formatISO(new Date()));
-      if (
-        compareDesc(
-          format(date, "yyyy-MM-dd"),
-          format(new Date(), "yyyy-MM-dd")
-        ) === 1
-      )
-        return alert("Não é possível enviar resultados passados!");
+      // if (
+      //   compareDesc(
+      //     format(date, "yyyy-MM-dd"),
+      //     format(new Date(), "yyyy-MM-dd")
+      //   ) === 1
+      // )
+      //   return alert("Não é possível enviar resultados passados!");
 
       if (
         compareDesc(
