@@ -108,9 +108,11 @@ export default function Home() {
         <div
           className="rounded bg-yellow-600 p-2 m-2 text-xs"
           // onClick={() => router.push("contests")}
+          // inclusão das datas de inicio e de fim a baixo do nome do torneio
         >
           {`${contest.name}`}
           {<div></div>}
+          {`${contest.start_date}`} - {`${contest.end_date}`}
         </div>
       ) : (
         <div className="rounded bg-yellow-600 p-2 m-2 text-xs">
