@@ -85,16 +85,6 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
   }
 
   const handleSend = useCallback(async () => {
-    // Mudar para buscar o contest no useContestStore, pois já temos ele lá
-    const { data: contest } = await supabase
-      .from("contests")
-      .select("*")
-      .eq("open", true)
-      .single();
-
-    if (compareDesc(format(new Date(), "yyyy-MM-dd"), contest.end_date) === -1)
-      return alert("Não é possível enviar mais resultados!");
-
     try {
       const {
         date,
