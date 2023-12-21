@@ -32,7 +32,7 @@ export default function Contests() {
         router.back();
       }
     },
-    [player?.id]
+    [player?.id, router]
   );
 
   const fetchData = useCallback(async () => {

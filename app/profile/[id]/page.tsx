@@ -129,7 +129,6 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
       const { data, error } = await supabase.from("daily").insert([
         {
           player_id: id,
-          contest_id: contest.id,
           created_at: format(date, "yyyy-MM-dd"),
           score: attempts,
           answers: matrix,
