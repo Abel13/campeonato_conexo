@@ -11,6 +11,7 @@ export default function Contests() {
   const [openContests, setOpenContests] = useState<Contest[]>([]);
   const [closedContests, setClosedContests] = useState<Contest[]>([]);
   const [secureContest, setSecureContest] = useState<Contest>();
+  const [password, setPassword] = useState<string>("");
 
   const router = useRouter();
 
@@ -20,13 +21,24 @@ export default function Contests() {
 
   const handleParticipate = useCallback(
     async (contest: Contest) => {
+      const { error: fail } = await supabase
+        .from("contests")
+        .select("*")
+        .filter("password", "eq", password)
+        .single();
+
+      if (fail) {
+        alert("Senha incorreta!");
+        return;
+      }
+
       const { error } = await supabase.from("subscriptions").insert({
         player_id: player?.id,
         contest_id: contest.id,
       });
 
       if (error) {
-        if (error.code === "42501") {
+        if (error.code === "42501" || error.code === "23505") {
           alert("Você já está cadastrado neste campeonato");
         } else
           alert(error.message || "Ocorreu um erro ao participar do campeonato");
@@ -34,7 +46,7 @@ export default function Contests() {
         router.back();
       }
     },
-    [player?.id, router]
+    [password, player?.id, router]
   );
 
   const fetchData = useCallback(async () => {
@@ -83,13 +95,24 @@ export default function Contests() {
                   placeholder="Senha"
                   type="password"
                   className="w-full"
+                  onChange={(e) => {
+                    setPassword(e.target.value ? e.target.value : "");
+                  }}
                 />
-                <button
-                  className="w-fit p-2 mt-2 bg-blue-600 rounded px-4 text-white font-semibold text-xs disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  onClick={() => handleParticipate(secureContest)}
-                >
-                  Entrar
-                </button>
+                <div className="flex">
+                  <button
+                    className="w-fit p-2 mt-2 bg-red-600 rounded px-4 text-white font-semibold text-xs disabled:bg-gray-400 disabled:cursor-not-allowed mr-2"
+                    onClick={() => setSecureContest(undefined)}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    className="w-fit p-2 mt-2 bg-blue-600 rounded px-4 text-white font-semibold text-xs disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    onClick={() => handleParticipate(secureContest)}
+                  >
+                    Entrar
+                  </button>
+                </div>
               </div>
             </div>
           )}
