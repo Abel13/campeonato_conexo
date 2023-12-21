@@ -110,6 +110,10 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         throw new Error("Formato inválido");
       }
       //usa isPast e isFuture pra validar entradas.
+      //essas linhas podem ser substituidas por 
+      //if !(isToday(format(date, "yyyy-MM-dd")))
+      //   return alert("Não é possível enviar resultados fora da data de hoje ${format(date, "dd/MM/yyyy")}!");
+      
       if (isPast(format(date, "yyyy-MM-dd")))
          return alert("Não é possível enviar resultados passados!");
 
