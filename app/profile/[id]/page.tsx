@@ -7,15 +7,7 @@ import { useRouter } from "next/navigation";
 import { useProfileStore } from "@/hooks/profile";
 import { Daily } from "@/types/daily";
 import { Player } from "@/types/player";
-import {
-  compareDesc,
-  endOfDay,
-  format,
-  formatISO,
-  parse,
-  parseISO,
-  toDate,
-} from "date-fns";
+import { compareDesc, endOfDay, format, parse } from "date-fns";
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
   const router = useRouter();

@@ -44,7 +44,7 @@ export default function Home() {
 
         if (contest) {
           setContest(contest);
-          const { data: scoreboard, error } = await supabase.rpc("scoreboard", {
+          const { data: scoreboard } = await supabase.rpc("scoreboard", {
             _contest: contest.id,
           });
 
