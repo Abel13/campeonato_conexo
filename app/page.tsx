@@ -55,7 +55,7 @@ export default function Home() {
         .eq("player_id", user.id);
 
       if (subscriptions && subscriptions?.length > 0) {
-        const contests = subscriptions.map((s) => s.contest);
+        const contests = subscriptions.map((s) => s.contest).filter((c) => c);
 
         if (contests.length > 0) {
           setContests(contests);

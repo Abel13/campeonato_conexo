@@ -146,7 +146,10 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
 
   return (
     <div className="flex w-full pt-5 flex-col items-center">
-      <div className="flex w-full px-2 text-blue-500" onClick={router.back}>
+      <div
+        className="flex w-full px-2 text-blue-500"
+        onClick={() => router.replace("/")}
+      >
         voltar
       </div>
       <Image

@@ -21,15 +21,17 @@ export default function Contests() {
 
   const handleParticipate = useCallback(
     async (contest: Contest) => {
-      const { error: fail } = await supabase
-        .from("contests")
-        .select("*")
-        .filter("password", "eq", password)
-        .single();
+      if (contest.ask_password) {
+        const { error: fail } = await supabase
+          .from("contests")
+          .select("*")
+          .filter("password", "eq", password)
+          .single();
 
-      if (fail) {
-        alert("Senha incorreta!");
-        return;
+        if (fail) {
+          alert("Senha incorreta!");
+          return;
+        }
       }
 
       const { error } = await supabase.from("subscriptions").insert({
@@ -43,7 +45,7 @@ export default function Contests() {
         } else
           alert(error.message || "Ocorreu um erro ao participar do campeonato");
       } else {
-        router.back();
+        router.replace(`/`);
       }
     },
     [password, player?.id, router]
@@ -70,7 +72,10 @@ export default function Contests() {
   return (
     <main className="flex min-h-screen flex-col items-center">
       <div className="max-w-5xl w-full items-center justify-between font-mono text-sm flex border-gray-300 dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 backdrop-blur-2xl   lg:dark:bg-zinc-800/30 bg-gradient-to-b from-zinc-200 pb-6 pt-8 border-b p-2">
-        <div className="flex flex-1 px-2 text-blue-500" onClick={router.back}>
+        <div
+          className="flex flex-1 px-2 text-blue-500"
+          onClick={() => router.replace("/")}
+        >
           voltar
         </div>
         <p className="flex w-fit">🏁 CAMPEONATOS 🏁</p>
