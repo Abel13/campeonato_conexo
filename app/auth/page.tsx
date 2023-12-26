@@ -30,6 +30,8 @@ export default function Register() {
     }
   };
 
+  const handleMagicLink = async () => {};
+
   const register = () => {
     router.replace("/register");
   };
@@ -84,6 +86,12 @@ export default function Register() {
       >
         Entrar
       </button>
+      <span
+        className="mt-4 text-sm bg-purple-500 p-2 px-4 rounded"
+        onClick={handleMagicLink}
+      >
+        🧙‍♂️ Entrar com Magic Link 🧙‍♂️
+      </span>
       <span className="mt-4 text-sm text-blue-500" onClick={register}>
         Criar minha conta
       </span>

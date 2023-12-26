@@ -4,6 +4,7 @@ import { supabase } from "@/config/supabase";
 import { useProfileStore } from "@/hooks/profile";
 import { Contest } from "@/types/contest";
 import { Player } from "@/types/player";
+import { format } from "date-fns";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -117,14 +118,19 @@ export default function Home() {
           // onClick={() => router.push("contests")}
           // inclusão das datas de inicio e de fim a baixo do nome do torneio
         >
-          {`${contest.name}`}
-          {<div></div>}
-          {`${contest.start_date}`} - {`${contest.end_date}`}
-        <div className="rounded bg-yellow-600 m-2 text-xs">
-          <div className="p-1 text-center" onClick={() => setHide(!hide)}>
+          <div
+            className="p-1 text-center font-semibold"
+            onClick={() => setHide(!hide)}
+          >
             {`${contest.name}`}
-              {<div></div>}
-            {`${contest.start_date}`} - {`${contest.end_date}`}
+            {
+              <div className="font-normal text-slate-200">
+                {`${format(contest.start_date, "dd/MM/yyyy")} - ${format(
+                  contest.start_date,
+                  "dd/MM/yyyy"
+                )}`}
+              </div>
+            }
           </div>
 
           {!hide && (
