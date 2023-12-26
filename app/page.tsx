@@ -126,7 +126,7 @@ export default function Home() {
             {
               <div className="font-normal text-slate-200">
                 {`${format(contest.start_date, "dd/MM/yyyy")} - ${format(
-                  contest.start_date,
+                  contest.end_date,
                   "dd/MM/yyyy"
                 )}`}
               </div>
