@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useProfileStore } from "@/hooks/profile";
 import { Daily } from "@/types/daily";
 import { Player } from "@/types/player";
-import { compareDesc, endOfDay, format, parse } from "date-fns";
+import { compareDesc, endOfDay, format, parse, isToday, isPast, isFuture } from "date-fns";
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
   const router = useRouter();
@@ -99,21 +99,11 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
       if (!date || !matrix || !attempts) {
         throw new Error("Formato inválido");
       }
+      
+      if (isPast(format(date, "yyyy-MM-dd")))
+         return alert("Não é possível enviar resultados passados!");
 
-      // if (
-      //   compareDesc(
-      //     format(date, "yyyy-MM-dd"),
-      //     format(new Date(), "yyyy-MM-dd")
-      //   ) === 1
-      // )
-      //   return alert("Não é possível enviar resultados passados!");
-
-      if (
-        compareDesc(
-          format(date, "yyyy-MM-dd"),
-          format(new Date(), "yyyy-MM-dd")
-        ) === -1
-      )
+      if (isFuture(format(date, "yyyy-MM-dd")))
         return alert("Não é possível enviar resultados futuros!");
 
       const { data, error } = await supabase.from("daily").insert([

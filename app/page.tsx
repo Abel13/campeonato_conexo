@@ -112,9 +112,19 @@ export default function Home() {
         </div>
       </div>
       {contest ? (
+        <div
+          className="rounded bg-yellow-600 p-2 m-2 text-xs"
+          // onClick={() => router.push("contests")}
+          // inclusão das datas de inicio e de fim a baixo do nome do torneio
+        >
+          {`${contest.name}`}
+          {<div></div>}
+          {`${contest.start_date}`} - {`${contest.end_date}`}
         <div className="rounded bg-yellow-600 m-2 text-xs">
           <div className="p-1 text-center" onClick={() => setHide(!hide)}>
-            {contest.name}
+            {`${contest.name}`}
+              {<div></div>}
+            {`${contest.start_date}`} - {`${contest.end_date}`}
           </div>
 
           {!hide && (
