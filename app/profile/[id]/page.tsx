@@ -100,11 +100,8 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         throw new Error("Formato inválido");
       }
       
-      if (isPast(format(date, "yyyy-MM-dd")))
-         return alert("Não é possível enviar resultados passados!");
-
-      if (isFuture(format(date, "yyyy-MM-dd")))
-        return alert("Não é possível enviar resultados futuros!");
+      if (!isToday(format(date, "yyyy-MM-dd")))
+         return alert("Não é possível enviar resultados futuros ou passados!");
 
       const { data, error } = await supabase.from("daily").insert([
         {
