@@ -17,12 +17,28 @@ export default function Home() {
 
   const [contest, setContest] = useState<Contest>();
   const [contests, setContests] = useState<Contest[]>();
+  const [hide, setHide] = useState<boolean>(true);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [loadingScoreboard, setLoadingScoreboard] = useState<boolean>(false);
 
   const {
     state: { player },
   } = useProfileStore((store) => store);
 
-  const [players, setPlayers] = useState<Player[]>([]);
+  const fetchScoreboard = useCallback(async (contest: Contest) => {
+    setLoadingScoreboard(true);
+    setContest(contest);
+    setHide(true);
+
+    const { data: scoreboard } = await supabase.rpc("scoreboard", {
+      _start_date: contest.start_date,
+      _end_date: contest.end_date,
+      _contest_id: contest.id,
+    });
+
+    if (scoreboard) setPlayers(scoreboard);
+    setLoadingScoreboard(false);
+  }, []);
 
   const fetchData = useCallback(async () => {
     const {
@@ -34,25 +50,16 @@ export default function Home() {
 
       const { data: subscriptions } = await supabase
         .from("subscriptions")
-        .select("*")
+        .select("*, contest:contest_id (id, name, start_date, end_date, open)")
+        .filter("contest.open", "eq", true)
         .eq("player_id", user.id);
 
       if (subscriptions && subscriptions?.length > 0) {
-        const { data: contest } = await supabase
-          .from("contests")
-          .select("*")
-          .eq("id", subscriptions[0].contest_id)
-          .eq("open", true)
-          .single();
+        const contests = subscriptions.map((s) => s.contest).filter((c) => c);
 
-        if (contest) {
-          setContest(contest);
-          const { data: scoreboard } = await supabase.rpc("scoreboard", {
-            _start_date: contest.start_date,
-            _end_date: contest.end_date,
-          });
-
-          setPlayers(scoreboard);
+        if (contests.length > 0) {
+          setContests(contests);
+          fetchScoreboard(contests[0]);
           return;
         }
       }
@@ -61,7 +68,7 @@ export default function Home() {
     } else {
       router.replace("/auth");
     }
-  }, [loadPlayer, router]);
+  }, [fetchScoreboard, loadPlayer, router]);
 
   const getMedal = (position: number) => {
     switch (position) {
@@ -113,6 +120,40 @@ export default function Home() {
           {`${contest.name}`}
           {<div></div>}
           {`${contest.start_date}`} - {`${contest.end_date}`}
+        <div className="rounded bg-yellow-600 m-2 text-xs">
+          <div className="p-1 text-center" onClick={() => setHide(!hide)}>
+            {`${contest.name}`}
+              {<div></div>}
+            {`${contest.start_date}`} - {`${contest.end_date}`}
+          </div>
+
+          {!hide && (
+            <div className="grid gap-0 mt-2">
+              {contests &&
+                contests.map((c) => {
+                  return (
+                    <div
+                      className={`p-2 ${
+                        c.id === contest.id && "bg-yellow-700"
+                      }`}
+                      key={c.id}
+                      onClick={() => {
+                        fetchScoreboard(c);
+                      }}
+                    >
+                      {c.name}
+                    </div>
+                  );
+                })}
+              <div className="border-t my-2" />
+              <p
+                className="text-xs text-center mb-1"
+                onClick={() => router.push("contests")}
+              >
+                Buscar campeonato
+              </p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="rounded bg-yellow-600 p-2 m-2 text-xs">
@@ -126,44 +167,48 @@ export default function Home() {
         </div>
       )}
 
-      <div className="flex-1 w-full p-2 ">
-        {players.map((player, index) => (
-          <div
-            key={player.id}
-            className="flex items-center justify-between w-full max-w-5xl p-4 my-2 bg-white rounded-xl shadow-md dark:bg-zinc-800"
-            onClick={() => router.push(`profile/${player.id}`)}
-          >
-            <div className="flex items-center">
-              {getMedal(index)}
-              <div className="flex-shrink-0">
-                <Image
-                  className="rounded-full"
-                  src={`https://api.dicebear.com/7.x/fun-emoji/png?seed=${player.name}`}
-                  alt="Icon"
-                  width={50}
-                  height={50}
-                />
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {player.name}
-                </p>
-                <div className="flex space-x-1 text-sm text-gray-600">
-                  <p>{player.trophies > 0 && `${player.trophies} 🏆`}</p>
+      {loadingScoreboard ? (
+        <div className="flex-1 w-full p-2 text-center">Carregando...</div>
+      ) : (
+        <div className="flex-1 w-full p-2">
+          {players.map((player, index) => (
+            <div
+              key={player.id}
+              className="flex items-center justify-between w-full max-w-5xl p-4 my-2 bg-white rounded-xl shadow-md dark:bg-zinc-800"
+              onClick={() => router.push(`profile/${player.id}`)}
+            >
+              <div className="flex items-center">
+                {getMedal(index)}
+                <div className="flex-shrink-0">
+                  <Image
+                    className="rounded-full"
+                    src={`https://api.dicebear.com/7.x/fun-emoji/png?seed=${player.name}`}
+                    alt="Icon"
+                    width={50}
+                    height={50}
+                  />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    {player.name}
+                  </p>
+                  <div className="flex space-x-1 text-sm text-gray-600">
+                    <p>{player.trophies > 0 && `${player.trophies} 🏆`}</p>
+                  </div>
                 </div>
               </div>
+              <div className="flex items-center flex-col">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {player.score}
+                </p>
+                <p className="text-xs font-medium text-gray-600">
+                  {`em ${player.dailies} dias`}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center flex-col">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                {player.score}
-              </p>
-              <p className="text-xs font-medium text-gray-600">
-                {`em ${player.dailies} dias`}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </main>
   );
 }

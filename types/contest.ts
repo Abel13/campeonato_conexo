@@ -5,4 +5,5 @@ export type Contest = {
   open: boolean;
   name: string;
   allow_subscription: Date;
+  ask_password: boolean;
 };

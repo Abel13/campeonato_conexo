@@ -85,16 +85,6 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
   }
 
   const handleSend = useCallback(async () => {
-    // Mudar para buscar o contest no useContestStore, pois já temos ele lá
-    const { data: contest } = await supabase
-      .from("contests")
-      .select("*")
-      .eq("open", true)
-      .single();
-    // ve se campeonato já acabou
-    if (compareDesc(format(new Date(), "yyyy-MM-dd"), contest.end_date) === -1)
-      return alert("Não é possível enviar mais resultados!");
-
     try {
       const {
         date,
@@ -109,10 +99,6 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
       if (!date || !matrix || !attempts) {
         throw new Error("Formato inválido");
       }
-      //usa isPast e isFuture pra validar entradas.
-      //essas linhas podem ser substituidas por 
-      //if !(isToday(format(date, "yyyy-MM-dd")))
-      //   return alert("Não é possível enviar resultados fora da data de hoje ${format(date, "dd/MM/yyyy")}!");
       
       if (isPast(format(date, "yyyy-MM-dd")))
          return alert("Não é possível enviar resultados passados!");
@@ -150,7 +136,10 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
 
   return (
     <div className="flex w-full pt-5 flex-col items-center">
-      <div className="flex w-full px-2 text-blue-500" onClick={router.back}>
+      <div
+        className="flex w-full px-2 text-blue-500"
+        onClick={() => router.replace("/")}
+      >
         voltar
       </div>
       <Image
