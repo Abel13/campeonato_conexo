@@ -1,5 +1,3 @@
-export function Result() {
-  return <div>Result</div>;
+export default function Result() {
+  return <main>Contest Result</main>;
 }
-
-export default Result;
