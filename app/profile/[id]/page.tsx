@@ -50,6 +50,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
     date: Date;
     matrix: string[];
     attempts: number;
+    counts: number;
   } {
     try {
       // Expressão regular para extrair a data
@@ -77,12 +78,16 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         .replaceAll("🟦", ",blue")
         .replaceAll(" ", "")
         .split(",");
+      
+      const counts = matrix.length-1;
 
-      return { date, matrix: matrix.filter((char) => char), attempts };
+      return { date, matrix: matrix.filter((char) => char), attempts, counts};
     } catch (error) {
       throw error;
     }
   }
+
+
 
   const handleSend = useCallback(async () => {
     try {
@@ -90,10 +95,12 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         date,
         matrix,
         attempts,
+        counts,
       }: {
         date: Date;
         matrix: string[];
         attempts: number;
+        counts: number;
       } = extractData(answer);
 
       if (!date || !matrix || !attempts) {
@@ -105,6 +112,9 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
 
       if (isFuture(format(date, "yyyy-MM-dd")))
         return alert("Não é possível enviar resultados futuros!");
+
+      if (counts!=attempts)
+        return alert("PARE DE ROUBAR!");
 
       const { data, error } = await supabase.from("daily").insert([
         {
