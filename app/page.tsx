@@ -1,7 +1,7 @@
 "use client";
 import NavLink from "@/components/NavLink";
 import { supabase } from "@/config/supabase";
-import { useProfileStore } from "@/hooks/profile";
+import { useProfileStore } from "@/hooks/useProfileStore";
 import { Contest } from "@/types/contest";
 import { Player } from "@/types/player";
 import { format } from "date-fns";

@@ -3,7 +3,7 @@ import { supabase } from "@/config/supabase";
 import { Contest } from "@/types/contest";
 import { useCallback, useEffect, useState } from "react";
 import { compareDesc, format } from "date-fns";
-import { useProfileStore } from "@/hooks/profile";
+import { useProfileStore } from "@/hooks/useProfileStore";
 import { useRouter } from "next/navigation";
 import TextField from "@/components/Fields";
 

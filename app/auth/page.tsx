@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import TextField from "@/components/Fields";
 import { supabase } from "@/config/supabase";
 import { useRouter } from "next/navigation";
-import { useProfileStore } from "@/hooks/profile";
+import { useProfileStore } from "@/hooks/useProfileStore";
 
 export default function Register() {
   const router = useRouter();
