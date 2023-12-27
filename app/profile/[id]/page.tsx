@@ -4,10 +4,17 @@ import TextField from "@/components/Fields";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/config/supabase";
 import { useRouter } from "next/navigation";
-import { useProfileStore } from "@/hooks/profile";
+import { useProfileStore } from "@/hooks/useProfileStore";
 import { Daily } from "@/types/daily";
 import { Player } from "@/types/player";
-import { compareDesc, endOfDay, format, parse, isToday, isPast, isFuture } from "date-fns";
+import {
+  endOfDay,
+  format,
+  parse,
+  isBefore,
+  isAfter,
+  startOfDay,
+} from "date-fns";
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
   const router = useRouter();
@@ -78,16 +85,14 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         .replaceAll("🟦", ",blue")
         .replaceAll(" ", "")
         .split(",");
-      
-      const counts = matrix.length-1;
 
-      return { date, matrix: matrix.filter((char) => char), attempts, counts};
+      const counts = matrix.length - 1;
+
+      return { date, matrix: matrix.filter((char) => char), attempts, counts };
     } catch (error) {
       throw error;
     }
   }
-
-
 
   const handleSend = useCallback(async () => {
     try {
@@ -106,12 +111,14 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
       if (!date || !matrix || !attempts) {
         throw new Error("Formato inválido");
       }
-      
-      if (!isToday(format(date, "yyyy-MM-dd")))
-         return alert("Não é possível enviar resultados futuros ou passados!");
 
-      if (counts!=attempts)
-        return alert("PARE DE ROUBAR!");
+      if (isBefore(date, startOfDay(new Date())))
+        return alert("Não é possível enviar resultados de datas passadas!");
+
+      if (isAfter(date, endOfDay(new Date())))
+        return alert("Não é possível enviar resultados de datas futuras!");
+
+      if (counts != attempts) return alert("PARE DE ROUBAR!");
 
       const { data, error } = await supabase.from("daily").insert([
         {
