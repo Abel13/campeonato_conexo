@@ -2,10 +2,11 @@
 import { supabase } from "@/config/supabase";
 import { Contest } from "@/types/contest";
 import { useCallback, useEffect, useState } from "react";
-import { compareDesc, format } from "date-fns";
+import { compareDesc, format, parseISO } from "date-fns";
 import { useProfileStore } from "@/hooks/useProfileStore";
 import { useRouter } from "next/navigation";
 import TextField from "@/components/Fields";
+import { ptBR } from "date-fns/locale";
 
 export default function Contests() {
   const [openContests, setOpenContests] = useState<Contest[]>([]);
@@ -128,7 +129,22 @@ export default function Contests() {
                   key={contest.id}
                   className="flex w-full justify-between items-center p-2"
                 >
-                  <p className="flex flex-1">{contest.name}</p>
+                  <div>
+                    <p className="flex flex-1">{contest.name}</p>
+                    <div className="text-xs text-slate-400">
+                      {format(
+                        parseISO(contest.start_date.toString()),
+                        "dd-MMM",
+                        {
+                          locale: ptBR,
+                        }
+                      )}{" "}
+                      até{" "}
+                      {format(parseISO(contest.end_date.toString()), "dd-MMM", {
+                        locale: ptBR,
+                      })}
+                    </div>
+                  </div>
                   <button
                     disabled={
                       compareDesc(
@@ -164,7 +180,22 @@ export default function Contests() {
                   key={contest.id}
                   className="flex w-full justify-between items-center p-2"
                 >
-                  <p className="flex flex-1">{contest.name}</p>
+                  <div>
+                    <p className="flex flex-1">{contest.name}</p>
+                    <div className="text-xs text-slate-400">
+                      {format(
+                        parseISO(contest.start_date.toString()),
+                        "dd-MMM",
+                        {
+                          locale: ptBR,
+                        }
+                      )}{" "}
+                      até{" "}
+                      {format(parseISO(contest.end_date.toString()), "dd-MMM", {
+                        locale: ptBR,
+                      })}
+                    </div>
+                  </div>
                   <button
                     disabled
                     className="w-fit p-2 bg-blue-600 rounded px-4 text-white font-semibold text-xs disabled:bg-gray-400 disabled:cursor-not-allowed"
