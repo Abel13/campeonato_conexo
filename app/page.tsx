@@ -4,7 +4,7 @@ import { supabase } from "@/config/supabase";
 import { useProfileStore } from "@/hooks/useProfileStore";
 import { Contest } from "@/types/contest";
 import { Player } from "@/types/player";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -125,9 +125,12 @@ export default function Home() {
             {`${contest.name}`}
             {
               <div className="font-normal text-slate-200">
-                {`${format(contest.start_date, "dd/MM/yyyy")} - ${format(
-                  contest.end_date,
-                  "dd/MM/yyyy"
+                {`${format(
+                  parseISO(contest.start_date.toString()),
+                  "dd 'de' MMM"
+                )} à ${format(
+                  parseISO(contest.end_date.toString()),
+                  "dd 'de' MMM"
                 )}`}
               </div>
             }
