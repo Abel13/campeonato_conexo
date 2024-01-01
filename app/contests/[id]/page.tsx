@@ -12,29 +12,33 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [contest, setContest] = useState<Contest>();
 
-  const fetchScoreboard = useCallback(async (contest_id: string) => {
-    setLoading(true);
-    const { data: contest } = await supabase
-      .from("contests")
-      .select("*")
-      .eq("id", contest_id)
-      .single();
+  const fetchScoreboard = useCallback(
+    async (contest_id: string) => {
+      setLoading(true);
+      const { data: contest } = await supabase
+        .from("contests")
+        .select("*")
+        .eq("id", contest_id)
+        .single();
 
-    if (contest) {
-      setContest(contest);
-      const { data: scoreboard } = await supabase.rpc("scoreboard", {
-        _start_date: contest.start_date,
-        _end_date: contest.end_date,
-        _contest_id: contest.id,
-      });
+      if (contest) {
+        setContest(contest);
+        const { data: scoreboard } = await supabase.rpc("scoreboard", {
+          _start_date: contest.start_date,
+          _end_date: contest.end_date,
+          _contest_id: contest.id,
+        });
 
-      if (scoreboard) setPlayers(scoreboard);
-    } else {
-      alert("Campeonato não encontrado");
-    }
+        if (scoreboard) setPlayers(scoreboard);
+      } else {
+        alert("Campeonato não encontrado");
+        router.replace("/");
+      }
 
-    setLoading(false);
-  }, []);
+      setLoading(false);
+    },
+    [router]
+  );
 
   useEffect(() => {
     if (id) fetchScoreboard(id);
