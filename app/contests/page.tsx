@@ -197,7 +197,7 @@ export default function Contests() {
                     </div>
                   </div>
                   <button
-                    disabled
+                    onClick={() => router.push(`/contests/${contest.id}`)}
                     className="w-fit p-2 bg-blue-600 rounded px-4 text-white font-semibold text-xs disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     Ver resultados
