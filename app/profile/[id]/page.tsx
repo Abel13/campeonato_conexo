@@ -26,7 +26,9 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
   const [history, setHistory] = useState<Daily[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<Player>();
   const [allowSendResult, setAllowSendResult] = useState(false);
-  const { player } = useProfileStore((store) => store);
+  const [editName, setEditName] = useState(false);
+  const [nick, setNick] = useState("");
+  const { player, loadPlayer } = useProfileStore((store) => store);
 
   const fetchData = useCallback(async () => {
     const { data: selectedPlayer } = await supabase
@@ -37,6 +39,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
 
     if (selectedPlayer) {
       setSelectedPlayer(selectedPlayer);
+      setNick(selectedPlayer.name);
       if (player?.id === selectedPlayer.id) setAllowSendResult(true);
 
       const { data: history, error } = await supabase
@@ -94,6 +97,24 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
     }
   }
 
+  const savePlayer = useCallback(async () => {
+    if (player && nick !== "") {
+      const { data, error } = await supabase
+        .from("players")
+        .update({ name: nick })
+        .eq("id", player.id);
+
+      if (error) {
+        alert(error.message);
+      } else {
+        loadPlayer(player.id);
+        setEditName(false);
+      }
+    } else {
+      alert("Informe um nick válido!");
+    }
+  }, [loadPlayer, nick, player]);
+
   const handleSend = useCallback(async () => {
     try {
       const {
@@ -141,7 +162,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
     }
   }, [answer, id]);
 
-  if (!selectedPlayer)
+  if (!selectedPlayer || !player)
     return (
       <div className="flex min-h-screen items-center justify-center">
         Carregando...
@@ -158,12 +179,48 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
       </div>
       <Image
         className={`rounded-full border-2`}
-        src={`https://api.dicebear.com/7.x/fun-emoji/png?seed=${selectedPlayer.name}`}
+        src={`https://api.dicebear.com/7.x/fun-emoji/png?seed=${nick}`}
         alt="Icon"
         width={80}
         height={80}
       />
-      <span className="text-2xl mt-2">{selectedPlayer.name}</span>
+      {editName && selectedPlayer.id === player.id ? (
+        <div>
+          <span className="text-sm mb-1 text-gray-400 w-80">
+            Informe seu novo nick.
+          </span>
+          <div className="flex justify-center items-center bg-blue-600 rounded-lg">
+            <TextField
+              id="nick"
+              className="flex-1"
+              placeholder="Nick"
+              type="text"
+              value={nick}
+              onChange={(e) => {
+                setNick(e.target.value ? e.target.value : "");
+              }}
+            />
+            <button
+              className="w-fit p-2 bg-blue-600 rounded-lg px-4 text-white font-semibold"
+              onClick={savePlayer}
+            >
+              Salvar
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-end">
+          <span className="text-2xl mt-2">{nick}</span>
+          {player.id === selectedPlayer.id && (
+            <span
+              className="text-lg ml-2 rotate-90"
+              onClick={() => setEditName(true)}
+            >
+              ✏️
+            </span>
+          )}
+        </div>
+      )}
 
       {allowSendResult && (
         <>
@@ -212,7 +269,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
                     locale: ptBR,
                   })}
                 </span>
-                <span className="text-xl mr-2 text-white items-center">
+                <span className="text-xl mr-2  items-center">
                   {`${daily.score} `}
                   <span className="text-xs">tentativas</span>
                 </span>

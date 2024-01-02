@@ -45,6 +45,7 @@ function TextField(
     onChange,
     placeholder,
     maxLength,
+    value,
     ...props
   }: {
     id: string;
@@ -55,6 +56,7 @@ function TextField(
     placeholder: string;
     error?: string;
     maxLength?: number;
+    value?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   },
   ref: LegacyRef<HTMLInputElement> | undefined
@@ -71,6 +73,7 @@ function TextField(
           onChange={onChange}
           maxLength={maxLength}
           className="flex appearance-none w-full rounded-lg border border-transparent bg-white py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)] text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-transparent sm:text-sm"
+          value={value}
           {...props}
           ref={ref}
         />
