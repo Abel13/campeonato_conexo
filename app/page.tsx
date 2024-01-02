@@ -12,19 +12,13 @@ import { useCallback, useEffect, useState } from "react";
 export default function Home() {
   const router = useRouter();
 
-  const {
-    actions: { loadPlayer },
-  } = useProfileStore((store) => store);
+  const { player } = useProfileStore((store) => store);
 
   const [contest, setContest] = useState<Contest>();
   const [contests, setContests] = useState<Contest[]>();
   const [hide, setHide] = useState<boolean>(true);
   const [players, setPlayers] = useState<Player[]>([]);
   const [loadingScoreboard, setLoadingScoreboard] = useState<boolean>(false);
-
-  const {
-    state: { player },
-  } = useProfileStore((store) => store);
 
   const fetchScoreboard = useCallback(async (contest: Contest) => {
     setLoadingScoreboard(true);
@@ -42,18 +36,12 @@ export default function Home() {
   }, []);
 
   const fetchData = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      loadPlayer(user.id);
-
+    if (player) {
       const { data: subscriptions } = await supabase
         .from("subscriptions")
         .select("*, contest:contest_id (id, name, start_date, end_date, open)")
         .filter("contest.open", "eq", true)
-        .eq("player_id", user.id);
+        .eq("player_id", player.id);
 
       if (subscriptions && subscriptions?.length > 0) {
         const contests = subscriptions.map((s) => s.contest).filter((c) => c);
@@ -69,7 +57,7 @@ export default function Home() {
     } else {
       router.replace("/auth");
     }
-  }, [fetchScoreboard, loadPlayer, router]);
+  }, [fetchScoreboard, player, router]);
 
   const getMedal = (position: number) => {
     switch (position) {
@@ -86,14 +74,9 @@ export default function Home() {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, []);
 
-  if (!player)
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        Carregando...
-      </div>
-    );
+  if (!player) return null;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">

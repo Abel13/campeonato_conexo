@@ -9,12 +9,12 @@ export default function Register() {
   const router = useRouter();
 
   const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("default");
-  const {
-    actions: { loadPlayer },
-  } = useProfileStore((store) => store);
+  const { loadPlayer } = useProfileStore((store) => store);
 
   const handleLogin = async () => {
+    setLoading(true);
     const {
       data: { user },
       error,
@@ -25,9 +25,10 @@ export default function Register() {
 
     if (error) alert(error.message);
     else if (user) {
-      loadPlayer(user.id);
+      await loadPlayer(user.id);
       router.replace("/");
     }
+    setLoading(false);
   };
 
   const handleMagicLink = async () => {};
@@ -81,6 +82,7 @@ export default function Register() {
         />
       </div>
       <button
+        disabled={loading}
         className="w-fit p-2 bg-blue-600 rounded px-4 text-white font-semibold mt-6"
         onClick={handleLogin}
       >

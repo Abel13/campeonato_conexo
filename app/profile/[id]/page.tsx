@@ -14,7 +14,9 @@ import {
   isBefore,
   isAfter,
   startOfDay,
+  parseISO,
 } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
   const router = useRouter();
@@ -24,9 +26,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
   const [history, setHistory] = useState<Daily[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<Player>();
   const [allowSendResult, setAllowSendResult] = useState(false);
-  const {
-    state: { player },
-  } = useProfileStore((store) => store);
+  const { player } = useProfileStore((store) => store);
 
   const fetchData = useCallback(async () => {
     const { data: selectedPlayer } = await supabase
@@ -208,9 +208,9 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
             >
               <div>
                 <span className="flex flex-1 text-xs mr-2 text-gray-500">
-                  {`${new Date(daily.created_at).getUTCDate()}-${new Date(
-                    daily.created_at
-                  ).toLocaleString("pt-BR", { month: "short" })}`}
+                  {format(parseISO(daily.created_at.toString()), "dd-MMM.", {
+                    locale: ptBR,
+                  })}
                 </span>
                 <span className="text-xl mr-2 text-white items-center">
                   {`${daily.score} `}

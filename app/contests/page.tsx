@@ -16,9 +16,7 @@ export default function Contests() {
 
   const router = useRouter();
 
-  const {
-    state: { player },
-  } = useProfileStore((store) => store);
+  const { player } = useProfileStore((store) => store);
 
   const handleParticipate = useCallback(
     async (contest: Contest) => {
