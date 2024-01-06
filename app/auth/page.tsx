@@ -10,11 +10,13 @@ export default function Register() {
 
   const [token, setToken] = useState("");
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("default");
+  const [email, setEmail] = useState<string>();
   const { loadPlayer } = useProfileStore((store) => store);
 
   const handleLogin = async () => {
     setLoading(true);
+    if (!email || !token) return alert("Preencha todos os campos!");
+
     const {
       data: { user },
       error,
@@ -31,7 +33,28 @@ export default function Register() {
     setLoading(false);
   };
 
-  const handleMagicLink = async () => {};
+  const handleMagicLink = async () => {
+    setLoading(true);
+
+    if (!email) return alert("Informe seu email!");
+
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email: email,
+      options: {
+        emailRedirectTo: "https://campeonato-conexo.vercel.app",
+      },
+    });
+
+    if (error) {
+      if (error.status === 400) alert("Informe um email válido!");
+      else if (error.status === 429)
+        alert(
+          "Limite de emails atingido, aguarde alguns minutos e tente novamente!"
+        );
+      else alert(error.message);
+    } else alert("Magic Link enviado para seu email!");
+    setLoading(false);
+  };
 
   const register = () => {
     router.replace("/register");
@@ -63,7 +86,7 @@ export default function Register() {
           placeholder="E-mail"
           type="text"
           onChange={(e) => {
-            setEmail(e.target.value ? e.target.value : "default");
+            setEmail(e.target.value);
           }}
         />
 
